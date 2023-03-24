@@ -19,7 +19,7 @@ import java.util.Optional;
 
 //import static com.gproject.UserApplication.getUserByUsername;
 
-@WebServlet("/login")
+@WebServlet("/loginOLD")
 public class Login extends HttpServlet {
 
     private static final String AUTH_COOKIE = "auth";
@@ -43,7 +43,7 @@ public class Login extends HttpServlet {
         Credentials anonymous = objectMapper.readValue(reqBody, Credentials.class);
         System.out.println(reqBody);
         resp.setContentType("application/json");
-        try {
+//        try {
             System.out.println(anonymous.toString());
             System.out.println(UserServiceImpl.getInstance());
 
@@ -69,9 +69,9 @@ public class Login extends HttpServlet {
                 //error
             }
 
-        } catch (NonExistentEntityException ex) {
-//            LOGGER.log(Level.WARNING, ex.getMessage());
-        }
+//        } catch (NonExistentEntityException ex) {
+////            LOGGER.log(Level.WARNING, ex.getMessage());
+//        }
 
 
     }

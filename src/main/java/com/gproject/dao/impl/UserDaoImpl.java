@@ -240,8 +240,6 @@ public class UserDaoImpl implements UserDao<User, Integer> {
     public User update(User user) {
         String message = "The user to be updated should not be null";
         User nonNullUser = Objects.requireNonNull(user, message);
-//        System.out.println("update call==================");
-//        System.out.println(nonNullUser.toString());
         String sql = "UPDATE users "
                 + "SET "
                 + "username = ?, "
@@ -281,7 +279,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
     }
 
     @Override
-    public void delete(User user) {
+    public boolean delete(User user) {
         String message = "The customer to be deleted should not be null";
         User nonNullUser = Objects.requireNonNull(user, message);
         String sql = "DELETE FROM users WHERE user_id = ?";
@@ -297,9 +295,12 @@ public class UserDaoImpl implements UserDao<User, Integer> {
             LOGGER.log(Level.INFO, "Was the customer deleted successfully? {0}",
                     numberOfDeletedRows > 0);
 
+            return numberOfDeletedRows > 0;
+
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }
+        return false;
 //        });
     }
 

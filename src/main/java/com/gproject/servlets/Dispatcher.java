@@ -1,64 +1,72 @@
 package com.gproject.servlets;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gproject.dao.UserDao;
-import com.gproject.dao.impl.UserDaoImpl;
-import com.gproject.exception.NonExistentEntityException;
-import com.gproject.exception.NonExistentUserException;
-import com.gproject.entity.User;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.gproject.annotations.HttpMethod;
+import com.gproject.handlers.HandlerMethodHolder;
+import com.gproject.handlers.HttpHandler;
+import com.gproject.handlers.HttpMapping;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.lang.reflect.InvocationTargetException;
 
 
-@WebServlet("/hidden")
+@WebServlet("/main")
 public class Dispatcher extends HttpServlet {
-    private static final UserDao<User, Integer> USER_DAO = UserDaoImpl.getInstance();
+
+    HandlerMethodHolder controllerHolder = HandlerMethodHolder.getInstance();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Optional<String> auth = readCookie("auth", req);
-        if (auth.isPresent()) {
-            Optional<String> authCompany = readCookie("authcompany", req);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        doHandle(request,response);
+    }
 
-            Collection<User> users = USER_DAO.getAllFromCompany(authCompany.get());
-            String json = objectMapper.writeValueAsString(users);
-            resp.setContentType("application/json");
-            PrintWriter printWriter = resp.getWriter();
-            printWriter.write(json);
-            printWriter.close();
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        doHandle(request,response);
+    }
 
-        } else {
-            //autorize pls you fucking shit
-            //dd redirwct to login page
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        doHandle(request,response);
+
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        doHandle(request,response);
+    }
+
+    private void doHandle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String pathInfo = request.getPathInfo();
+        HttpHandler handler;
+        HttpMapping mapping = HttpMapping.builder().path(pathInfo).method(HttpMethod.valueOf(request.getMethod())).build();
+        handler = controllerHolder.getControllerMap().get(mapping);
+        if (handler == null) {
+            handleNotFoundResponce(response);
+            return;
         }
+        try {
+            response = (HttpServletResponse) handler.getMethod().invoke(handler.getHandlerObject(),request,response);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
-    public Optional<String> readCookie(String key, HttpServletRequest req) {
-        return Arrays.stream(req.getCookies())
-                .filter(c -> key.equals(c.getName()))
-                .map(Cookie::getValue)
-                .findAny();
-    }
-
-    public static User getUserById(int id) throws NonExistentEntityException {
-        Optional<User> User = USER_DAO.get(id);
-        return User.orElseThrow(NonExistentUserException::new);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String reqBody = req.getReader().lines().reduce("", String::concat);
-        User editedUser = objectMapper.readValue(reqBody, User.class);
-        resp.setContentType("application/json");
-        USER_DAO.update(editedUser);
+    private HttpServletResponse handleNotFoundResponce(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        out.print("404");
+        return response;
     }
 }

@@ -15,5 +15,5 @@ public interface UserDao<T, I> {
     Collection<T> getAllFromCompany(String company);
     Optional<I> save(T t);
     User update(T t);
-    void delete(T t);
+    boolean delete(T t);
 }
