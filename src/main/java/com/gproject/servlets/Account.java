@@ -48,10 +48,10 @@ public class Account extends HttpServlet {
                 .findAny();
     }
 
-    public static User getUserById(int id) throws NonExistentEntityException {
-        Optional<User> User = USER_DAO.get(id);
-        return User.orElseThrow(NonExistentUserException::new);
-    }
+//    public static User getUserById(int id) throws NonExistentEntityException {
+////        Optional<User> User = USER_DAO.findUser(id);
+////        return User.orElseThrow(NonExistentUserException::new);
+//    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -59,6 +59,6 @@ public class Account extends HttpServlet {
         String reqBody = req.getReader().lines().reduce("", String::concat);
         User editedUser = objectMapper.readValue(reqBody, User.class);
         resp.setContentType("application/json");
-        USER_DAO.update(editedUser);
+        USER_DAO.updateUser(editedUser);
     }
 }

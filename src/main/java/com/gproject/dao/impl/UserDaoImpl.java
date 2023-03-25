@@ -3,6 +3,7 @@ package com.gproject.dao.impl;
 import com.gproject.dao.UserDao;
 import com.gproject.entity.Credentials;
 import com.gproject.entity.User;
+import com.gproject.exception.CustomSQLException;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.*;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 public class UserDaoImpl implements UserDao<User, Integer> {
     private static UserDaoImpl instance;
@@ -44,7 +46,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
 
     @Override
-    public Optional<User> get(int id) {
+    public Optional<User> findUser(int id) throws CustomSQLException{
 //        return connection.flatMap(conn -> {
         Optional<User> userOpt = Optional.empty();
         String sql = "SELECT * FROM users WHERE user_id = ?";
@@ -53,7 +55,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
              PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, id);
 
-            ResultSet resultSet = statement.executeQuery(sql);
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 userOpt = Optional.of(composeUser(resultSet));
@@ -62,14 +64,14 @@ public class UserDaoImpl implements UserDao<User, Integer> {
             }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("findUser - SQL Exception");
         }
-
         return userOpt;
 //        });
     }
 
     @Override
-    public Optional<User> get(String login) {
+    public Optional<User> findUser(String login)  throws CustomSQLException{
 //        return connection.flatMap(conn -> {
         Optional<User> userOpt = Optional.empty();
         String sql = "SELECT * FROM users WHERE username = ?";
@@ -86,41 +88,42 @@ public class UserDaoImpl implements UserDao<User, Integer> {
             }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("findUser - SQL Exception");
         }
 
         return userOpt;
 //        });
     }
 
+//    @Override
+//    public Optional<Credentials> getCredentials(String login) {
+////        return connection.flatMap(conn -> {
+//        Optional<Credentials> credOpt = Optional.empty();
+//        String sql = "SELECT password FROM users WHERE username = ?";
+//
+//        try (Connection conn = JdbcConnection.getInstance().getConnection();
+//             PreparedStatement statement = conn.prepareStatement(sql)) {
+//            statement.setString(1, login);
+//
+//            ResultSet resultSet = statement.executeQuery();
+//
+//            if (resultSet.next()) {
+//                String password = resultSet.getString("password");
+//                System.out.println(password);
+//                credOpt = Optional.of(new Credentials(login, password));
+//
+//                LOGGER.log(Level.INFO, "Found {0} in database", credOpt.get());
+//            }
+//        } catch (SQLException ex) {
+//            LOGGER.log(Level.SEVERE, null, ex);
+//        }
+//
+//        return credOpt;
+////        });
+//    }
+
     @Override
-    public Optional<Credentials> getCredentials(String login) {
-//        return connection.flatMap(conn -> {
-        Optional<Credentials> credOpt = Optional.empty();
-        String sql = "SELECT password FROM users WHERE username = ?";
-
-        try (Connection conn = JdbcConnection.getInstance().getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setString(1, login);
-
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                String password = resultSet.getString("password");
-                System.out.println(password);
-                credOpt = Optional.of(new Credentials(login, password));
-
-                LOGGER.log(Level.INFO, "Found {0} in database", credOpt.get());
-            }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-        }
-
-        return credOpt;
-//        });
-    }
-
-    @Override
-    public Collection<User> getAll() {
+    public Collection<User> getAll()  throws CustomSQLException{
         Collection<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY user_id";
 
@@ -131,16 +134,6 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
             while (resultSet.next()) {
                 User user = composeUser(resultSet);
-//                int id = resultSet.getInt("user_id");
-//                String username = resultSet.getString("username");
-//                String password = resultSet.getString("password");
-//                String email = resultSet.getString("email");
-//                String firstName = resultSet.getString("first_name");
-//                String lastName = resultSet.getString("last_name");
-//                String role = resultSet.getString("role");
-//                String userCompany = resultSet.getString("company");
-//
-//                User user = new User(id, username, password, email, firstName, lastName, role, userCompany);
 
                 users.add(user);
 
@@ -149,6 +142,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("getAll - SQL Exception");
         }
 //        });
 
@@ -156,7 +150,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
     }
 
     @Override
-    public Collection<User> getAllFromCompany(String company) {
+    public Collection<User> getAllFromCompany(String company)  throws CustomSQLException{
         Collection<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE company = ? ORDER BY user_id";
 
@@ -168,16 +162,6 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
             while (resultSet.next()) {
                 User user = composeUser(resultSet);
-//                    int id = resultSet.getInt("user_id");
-//                    String username = resultSet.getString("username");
-//                    String password = resultSet.getString("password");
-//                    String email = resultSet.getString("email");
-//                    String firstName = resultSet.getString("first_name");
-//                    String lastName = resultSet.getString("last_name");
-//                    String role = resultSet.getString("role");
-//                    String userCompany = resultSet.getString("company");
-//
-//                    User user = new User(id, username, password, email, firstName, lastName, role, userCompany);
 
                 users.add(user);
 
@@ -185,6 +169,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
             }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("getAllFromCompany - SQL Exception");
         }
 //        });
 
@@ -192,11 +177,11 @@ public class UserDaoImpl implements UserDao<User, Integer> {
     }
 
     @Override
-    public Optional<Integer> save(User User) {
+    public Optional<Integer> saveUser(User User)  throws CustomSQLException{
         String message = "The User to be added should not be null";
         User nonNullUser = Objects.requireNonNull(User, message);
         String sql = "INSERT INTO "
-                + "Users(username, password, email, first_name, last_name, role) "
+                + "Users(username, password, email, first_name, last_name, role, company) "
                 + "VALUES(?, ?, ?, ?, ?, CAST(? AS enum_role), ?)";
 //        return connection.flatMap(conn -> {
         Optional<Integer> generatedId = Optional.empty();
@@ -230,6 +215,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
                     new Object[]{nonNullUser, (numberOfInsertedRows > 0)});
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("saveUser - SQL Exception");
         }
 
         return generatedId;
@@ -237,7 +223,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
     }
 
     @Override
-    public User update(User user) {
+    public User updateUser(User user)  throws CustomSQLException{
         String message = "The user to be updated should not be null";
         User nonNullUser = Objects.requireNonNull(user, message);
         String sql = "UPDATE users "
@@ -273,22 +259,22 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("updateUser - SQL Exception");
         }
 //        });
         return user;
     }
 
     @Override
-    public boolean delete(User user) {
+    public boolean deleteUser(int id)  throws CustomSQLException{
         String message = "The customer to be deleted should not be null";
-        User nonNullUser = Objects.requireNonNull(user, message);
         String sql = "DELETE FROM users WHERE user_id = ?";
 
 //        connection.ifPresent(conn -> {
         try (Connection conn = JdbcConnection.getInstance().getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
 
-            statement.setInt(1, nonNullUser.getId());
+            statement.setInt(1, id);
 
             int numberOfDeletedRows = statement.executeUpdate();
 
@@ -299,8 +285,8 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+            throw new CustomSQLException("deleteUser - SQL Exception");
         }
-        return false;
 //        });
     }
 

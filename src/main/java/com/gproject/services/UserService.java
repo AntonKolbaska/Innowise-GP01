@@ -1,23 +1,25 @@
 package com.gproject.services;
 
 import com.gproject.dto.UserDto;
+import com.gproject.exception.CustomSQLException;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 
 public interface UserService {
 
-    <Optional> UserDto getUserById(int id);
+    <Optional> UserDto findUserById(int id) throws CustomSQLException;
 
-    <Optional>UserDto getUserByUsername(String username);
+    <Optional>UserDto findUserByUsername(String username)  throws CustomSQLException;
 
-    Collection<UserDto> getAllUsers();
+    Collection<UserDto> getAllUsers()  throws CustomSQLException;
 
-    Collection<UserDto> getAllUsersFromCompany(String company);
+//    Collection<UserDto> getAllUsersFromCompany(String company)  throws CustomSQLException;
 
-    Optional<Integer> createUser(final UserDto userDto);
+    Optional<Integer> createUser(final UserDto userDto)  throws CustomSQLException;
 
-    UserDto updateUser(final UserDto userDto);
+    UserDto updateUser(final UserDto userDto)  throws CustomSQLException;
 
-    boolean deleteUser(int id);
+    boolean deleteUser(int id)  throws CustomSQLException;
 }

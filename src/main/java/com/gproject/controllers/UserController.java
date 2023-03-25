@@ -5,6 +5,7 @@ import com.gproject.annotations.Controller;
 import com.gproject.annotations.HttpMethod;
 import com.gproject.annotations.RequestMapping;
 import com.gproject.dto.UserDto;
+import com.gproject.exception.CustomSQLException;
 import com.gproject.services.impl.UserServiceImpl;
 
 
@@ -33,38 +34,50 @@ public class UserController {
     @RequestMapping(url = "/workstation", method = HttpMethod.GET)
     public HttpServletResponse getUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        if (req.getParameter("id") == null) {
-            Collection<UserDto> usersList = userService.getAllUsers();
-            resp.setContentType("application/json");
-            PrintWriter out = resp.getWriter();
-            out.println(jsonMapper.writeValueAsString(usersList));
-            return resp;
-        } else {
-            Optional<UserDto> userOpt = Optional.of(userService.getUserById(Integer.parseInt(req.getParameter("id"))));
-            if (userOpt.isPresent()) {
+        try {
+            if (req.getParameter("id") == null) {
+
                 resp.setContentType("application/json");
+                Collection<UserDto> usersList = userService.getAllUsers();
                 PrintWriter out = resp.getWriter();
-                out.print(jsonMapper.writeValueAsString(userOpt));
+                out.println(jsonMapper.writeValueAsString(usersList));
                 return resp;
             } else {
-                return sendError(404, "User not found", resp);
+
+                Optional<UserDto> userOpt = Optional.of(userService.findUserById(Integer.parseInt(req.getParameter("id"))));
+
+                if (userOpt.isPresent()) {
+                    resp.setContentType("application/json");
+                    PrintWriter out = resp.getWriter();
+                    out.print(jsonMapper.writeValueAsString(userOpt.get()));
+                    return resp;
+                } else {
+                    return sendError(404, "User not found", resp);
+                }
+
             }
+        } catch (CustomSQLException e) {
+            return sendError(500, e.getMessage(), resp);
         }
     }
 
     @RequestMapping(url = "/workstation", method = HttpMethod.POST)
     public HttpServletResponse saveUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UserDto creatingUserDto = jsonMapper.readValue(req.getReader(), UserDto.class);
-        Optional <Integer> result= userService.createUser(creatingUserDto);
-        resp.setContentType("application/json");
-        if(result != null){
-            resp.setStatus(201);
-            return resp;
+        try {
+            Optional<Integer> result = userService.createUser(creatingUserDto);
+            resp.setContentType("application/json");
+            if (result != null) {
+                resp.setStatus(201);
+                return resp;
+            } else {
+                //not sure code 500 is OK here
+                return sendError(500, "Something went wrong", resp);
+            }
+        } catch (CustomSQLException e) {
+            return sendError(500, e.getMessage(), resp);
         }
-        else{
-            //not sure code 500 is OK here
-            return sendError(500, "Something went wrong", resp);
-        }
+
     }
 
     @RequestMapping(url = "/workstation", method = HttpMethod.PUT)
@@ -73,7 +86,7 @@ public class UserController {
 
             UserDto updatingUserDto = jsonMapper.readValue(req.getReader(), UserDto.class);
 
-            if (userService.getUserById(Integer.parseInt(req.getParameter("id"))) != null) {
+            if (userService.findUserById(Integer.parseInt(req.getParameter("id"))) != null) {
                 userService.updateUser(updatingUserDto);
                 return resp;
             } else {

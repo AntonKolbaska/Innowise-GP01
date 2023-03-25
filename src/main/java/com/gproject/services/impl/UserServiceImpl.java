@@ -3,7 +3,7 @@ package com.gproject.services.impl;
 import com.gproject.dao.impl.UserDaoImpl;
 import com.gproject.dto.UserDto;
 import com.gproject.entity.User;
-import com.gproject.exception.NonExistentUserException;
+import com.gproject.exception.CustomSQLException;
 import com.gproject.mappers.UserMapper;
 import com.gproject.services.UserService;
 import org.mapstruct.factory.Mappers;
@@ -31,38 +31,61 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public <Optional> UserDto getUserById(int id) {
-        return mapper.userToDto(userDao.get(id).get());
+    public UserDto findUserById(int id) throws CustomSQLException {
+        try {
+            return mapper.userToDto(userDao.findUser(id).get());
+        } catch (CustomSQLException e) {
+            throw e;
+        }
     }
 
 
-    public <Optional> UserDto getUserByUsername(String username){
-        return mapper.userToDto(userDao.get(username).get());
+    public UserDto findUserByUsername(String username) throws CustomSQLException {
+        try {
+            return mapper.userToDto(userDao.findUser(username).get());
+        } catch (CustomSQLException e) {
+            throw e;
+        }
     }
 
 
-    public Collection<UserDto> getAllUsers() {
-        return mapper.userToDtoCollection(userDao.getAll());
+    public Collection<UserDto> getAllUsers() throws CustomSQLException {
+        try {
+            return mapper.userToDtoCollection(userDao.getAll());
+        } catch (CustomSQLException e) {
+            throw e;
+        }
     }
 
 
-    public Collection<UserDto> getAllUsersFromCompany(String company) {
-        return mapper.userToDtoCollection(userDao.getAllFromCompany(company));
+//    public Collection<UserDto> getAllUsersFromCompany(String company) {
+//        return mapper.userToDtoCollection(userDao.getAllFromCompany(company));
+//    }
+
+    public Optional<Integer> createUser(final UserDto userDto) throws CustomSQLException {
+        try {
+            User user = mapper.dtoToUser(userDto);
+            return userDao.saveUser(user);
+        } catch (CustomSQLException e) {
+            throw e;
+        }
     }
 
-    public Optional<Integer> createUser(final UserDto userDto) {
-        User user = mapper.dtoToUser(userDto);
-        return userDao.save(user);
+
+    public UserDto updateUser(final UserDto userDto) throws CustomSQLException {
+        try {
+            return mapper.userToDto(
+                    userDao.updateUser(mapper.dtoToUser(userDto)));
+        } catch (CustomSQLException e) {
+            throw e;
+        }
     }
 
-
-    public UserDto updateUser(final UserDto userDto) {
-        return mapper.userToDto(
-                userDao.update(mapper.dtoToUser(userDto)));
-    }
-
-    public boolean deleteUser(int id) {
-        User userToDelete = userDao.get(id).get();
-        return userDao.delete(userToDelete);
+    public boolean deleteUser(int id) throws CustomSQLException {
+        try {
+            return userDao.deleteUser(id);
+        } catch (CustomSQLException e) {
+            throw e;
+        }
     }
 }

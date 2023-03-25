@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 
 
-@WebServlet("/main")
+@WebServlet("/test/*")
 public class Dispatcher extends HttpServlet {
 
     HandlerMethodHolder controllerHolder = HandlerMethodHolder.getInstance();

@@ -8,43 +8,38 @@ import java.util.logging.Logger;
 
 public class JdbcConnection {
 
-    private static String url = "jdbc:postgresql://localhost:5433/GP01";
-    private static String user = "postgres";
-    private static String password = "root";
+    private static String URL = "jdbc:postgresql://localhost:5433/GP01";
+    private static String USER = "postgres";
+    private static String PASSWORD = "root";
     private static final Logger LOGGER =
             Logger.getLogger(JdbcConnection.class.getName());
     private static JdbcConnection connection;
 
     private JdbcConnection() {
-//        if (connection.isEmpty()) {
-
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-//                throw new RuntimeException(e);
             LOGGER.log(Level.SEVERE, null, e);
         }
-
-//            try {
-//                connection = Optional.ofNullable(
-//                        DriverManager.getConnection(url, user, password));
-//            } catch (SQLException ex) {
-//                LOGGER.log(Level.SEVERE, null, ex);
-//            }
-//        }
-//
-//        return connection;
     }
 
 
     public static JdbcConnection getInstance() {
-        if (connection == null) {
-            connection = new JdbcConnection();
+        JdbcConnection localInstance = connection;
+        if (localInstance == null) {
+            synchronized (JdbcConnection.class) {
+                localInstance = connection;
+                if (localInstance == null) {
+                    connection = localInstance = new JdbcConnection();
+                }
+            }
         }
-        return connection;
+        return localInstance;
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, user, password);
+        Connection conn = null;
+        conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        return conn;
     }
 }

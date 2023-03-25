@@ -2,9 +2,7 @@ package com.gproject.servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gproject.dto.UserDto;
-import com.gproject.exception.NonExistentEntityException;
 import com.gproject.entity.Credentials;
-import com.gproject.entity.User;
 import com.gproject.services.impl.UserServiceImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -48,7 +46,7 @@ public class Login extends HttpServlet {
             System.out.println(UserServiceImpl.getInstance());
 
             Optional<UserDto> credentials = Optional.of(
-                    UserServiceImpl.getInstance().getUserByUsername(anonymous.getUsername()));
+                    UserServiceImpl.getInstance().findUserByUsername(anonymous.getUsername()));
 
             System.out.println("doPost=====================" + credentials.get().getUsername());
 
