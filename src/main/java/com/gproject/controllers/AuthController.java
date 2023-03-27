@@ -6,6 +6,7 @@ import com.gproject.annotations.HttpMethod;
 import com.gproject.annotations.RequestMapping;
 import com.gproject.entity.Credentials;
 import com.gproject.exception.CustomSQLException;
+import com.gproject.services.impl.JWTServiceImpl;
 import com.gproject.services.impl.UserServiceImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -37,28 +38,42 @@ public class AuthController {
     public HttpServletResponse login(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         //get credentials from req
         Credentials anonymous = jsonMapper.readValue(req.getReader(), Credentials.class);
-        //check credentials
-        try {
-            if (userService.findUserByUsername(anonymous.getUsername()).getPassword()
-                    .equals(DigestUtils.sha256Hex(anonymous.getPassword()))) {
-                //create uniqe token
-                //PLACEHOLDER====================================PLACEHOLDER
-
-                String authCookie = DigestUtils.sha256Hex(anonymous.getUsername());
-                Cookie authUiCookie = new Cookie(AUTH_COOKIE, authCookie);
-                resp.addCookie(authUiCookie);
-                authUiCookie.setDomain(req.getContextPath());
-                //PLACEHOLDER====================================PLACEHOLDER
-
-                resp.setContentType("application/json");
-                PrintWriter out = resp.getWriter();
-                out.println();
-                return resp;
-            } else {
-                return sendError(401, "Login and/or password is incorrect", resp);
-            }
-        } catch (CustomSQLException e) {
-            return sendError(500, e.getMessage(), resp);
+        if (userService.verifyUser(anonymous.getUsername(),anonymous.getPassword())) {
+            System.out.println("==================================anonymous verified");
+            JWTServiceImpl jwtService = JWTServiceImpl.getInstance();
+            resp.setContentType("application/json");
+            PrintWriter out = resp.getWriter();
+            String token = jwtService.buildUserToken(userService.findUserByUsername(anonymous.getUsername()));
+            System.out.println("TOKEN===========" + token);
+            out.println(token);
+            return resp;
+        } else {
+            return sendError(401, "Login and/or password is incorrect", resp);
         }
+
+
+        //check credentials
+//        try {
+//            if (userService.findUserByUsername(anonymous.getUsername()).getPassword()
+//                    .equals(DigestUtils.sha256Hex(anonymous.getPassword()))) {
+//                //create uniqe token
+//                //PLACEHOLDER====================================PLACEHOLDER
+//
+//                String authCookie = DigestUtils.sha256Hex(anonymous.getUsername());
+//                Cookie authUiCookie = new Cookie(AUTH_COOKIE, authCookie);
+//                resp.addCookie(authUiCookie);
+//                authUiCookie.setDomain(req.getContextPath());
+//                //PLACEHOLDER====================================PLACEHOLDER
+//
+//                resp.setContentType("application/json");
+//                PrintWriter out = resp.getWriter();
+//                out.println();
+//                return resp;
+//            } else {
+//                return sendError(401, "Login and/or password is incorrect", resp);
+//            }
+//        } catch (CustomSQLException e) {
+//            return sendError(500, e.getMessage(), resp);
+//        }
     }
 }

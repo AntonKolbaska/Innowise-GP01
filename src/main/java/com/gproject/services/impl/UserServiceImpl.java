@@ -6,6 +6,7 @@ import com.gproject.entity.User;
 import com.gproject.exception.CustomSQLException;
 import com.gproject.mappers.UserMapper;
 import com.gproject.services.UserService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collection;
@@ -87,5 +88,18 @@ public class UserServiceImpl implements UserService {
         } catch (CustomSQLException e) {
             throw e;
         }
+    }
+
+    public boolean verifyUser(String login, String password){
+        Optional<User> optionalUser = userDao.findUser(login);
+        if (optionalUser.isPresent()) {
+            System.out.println("PASSWORD SENT:===============================" + password);
+            System.out.println("PASSWORD STORED:=============================" + optionalUser.get().getPassword());
+            System.out.println("PASSWORD ENCRYPTED:==========================" + DigestUtils.sha256Hex(password));
+            return DigestUtils.sha256Hex(password).equals(optionalUser.get().getPassword());
+        } else {
+            return false;
+        }
+
     }
 }
