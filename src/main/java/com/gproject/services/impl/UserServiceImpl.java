@@ -1,6 +1,6 @@
 package com.gproject.services.impl;
 
-import com.gproject.dao.impl.UserDaoImpl;
+import com.gproject.controllers.dao.impl.UserDaoImpl;
 import com.gproject.dto.UserDto;
 import com.gproject.entity.User;
 import com.gproject.exception.CustomSQLException;

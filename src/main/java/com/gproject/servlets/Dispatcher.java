@@ -52,11 +52,9 @@ public class Dispatcher extends HttpServlet {
             return;
         }
         try {
-            response = (HttpServletResponse) handler.getMethod().invoke(handler.getHandlerObject(),request,response);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            handler.getMethod().invoke(handler.getHandlerObject(),request,response);
+        } catch (ReflectiveOperationException e) {
+            throw new IOException(e);
         }
 
     }

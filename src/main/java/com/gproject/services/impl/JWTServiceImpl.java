@@ -1,7 +1,10 @@
 package com.gproject.services.impl;
 
 import com.gproject.dto.UserDto;
+import com.gproject.entity.Credentials;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 
 import javax.crypto.spec.SecretKeySpec;
@@ -11,7 +14,7 @@ import java.util.Date;
 
 public class JWTServiceImpl {
 
-    private final String KEY = "mhtPmBwzAAZ8h5ysFPioX4TysKSrjnI=";
+    private final String KEY = "aW50ZXJlc3R3b2xmaGlkZWhpZGRlbmhlYWRlZHBhbGU=";
     private static volatile JWTServiceImpl instance;
 
     public static JWTServiceImpl getInstance() {
@@ -31,13 +34,12 @@ public class JWTServiceImpl {
             SignatureAlgorithm.HS256.getJcaName());
 
 
-    public String buildUserToken(UserDto user){
+    public String buildUserToken(Credentials user){
 
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime()
-                + 15       //duration, min
+                + 60    //duration, min
                 * 60000);  //ms multiplier
-        System.out.println("TOKEN DATES SET=================================");
         String result = Jwts.builder()
                 .setIssuer("GP01")
                 .claim("user", user.getUsername())  //set user

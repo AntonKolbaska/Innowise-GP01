@@ -91,7 +91,7 @@ public class HandlerMethodHolder {
                                     .build());
                         }
                         else {
-                            throw new RuntimeException(); //TODO: replace with my own exception
+                            throw new RuntimeException();
                         }
 
                     }

@@ -40,6 +40,7 @@ public class AuthFilter extends HttpFilter {
             String authorization = request.getHeader("Authorization");
 
             if (authorization == null || !authorization.matches("Bearer .+")){
+                System.out.println("Auth token is absent");
                 response.setContentType("application/json");
                 response.setStatus(401);
                 PrintWriter out = response.getWriter();
@@ -56,6 +57,7 @@ public class AuthFilter extends HttpFilter {
             try {
                 claims = jwtService.verifyUserToken(token);
             } catch (JwtException e) {
+                System.out.println("Bad token");
                 response.setContentType("application/json");
                 response.setStatus(401);
                 PrintWriter out = response.getWriter();
@@ -64,7 +66,8 @@ public class AuthFilter extends HttpFilter {
             }
 
             String role = claims.getBody().get("role", String.class);
-
+            System.out.println("ROLE==================="+role);
+            System.out.println("method==================="+request.getMethod());
             //restrict actions for default user
             if(role.equals("EMPLOYEE") & !request.getMethod().equals("GET")) {
                 response.setContentType("application/json");
