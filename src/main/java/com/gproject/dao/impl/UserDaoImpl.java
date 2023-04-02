@@ -1,9 +1,11 @@
 package com.gproject.dao.impl;
 
 import com.gproject.dao.UserDao;
-import com.gproject.entity.Credentials;
+import com.gproject.entity.Roles;
 import com.gproject.entity.User;
 import com.gproject.exception.CustomSQLException;
+import com.gproject.exception.NonExistentUserException;
+import com.gproject.services.impl.JWTServiceImpl;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.*;
@@ -18,12 +20,26 @@ import java.util.logging.Logger;
 public class UserDaoImpl implements UserDao<User, Integer> {
     private static UserDaoImpl instance;
 
+
     public static UserDaoImpl getInstance() {
-        if (instance == null) {
-            instance = new UserDaoImpl();
+        UserDaoImpl localInstance = instance;
+        if (localInstance == null) {
+            synchronized (UserDaoImpl.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new UserDaoImpl();
+                }
+            }
         }
-        return instance;
+        return localInstance;
     }
+
+//    public static UserDaoImpl getInstance() {
+//        if (instance == null) {
+//            instance = new UserDaoImpl();
+//        }
+//        return instance;
+//    }
 
     private static final Logger LOGGER =
             Logger.getLogger(UserDaoImpl.class.getName());
@@ -39,14 +55,14 @@ public class UserDaoImpl implements UserDao<User, Integer> {
         user.setEmail(resultSet.getString("email"));
         user.setFirstName(resultSet.getString("first_name"));
         user.setLastName(resultSet.getString("last_name"));
-        user.setRole(resultSet.getString("role"));
+        user.setRole(Roles.valueOf(resultSet.getString("role")));
         user.setCompany(resultSet.getString("company"));
         return user;
     }
 
 
     @Override
-    public Optional<User> findUser(int id) throws CustomSQLException{
+    public Optional<User> findUser(int id) throws CustomSQLException, NonExistentUserException{
 //        return connection.flatMap(conn -> {
         Optional<User> userOpt = Optional.empty();
         String sql = "SELECT * FROM users WHERE user_id = ?";
@@ -71,7 +87,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
     }
 
     @Override
-    public Optional<User> findUser(String login)  throws CustomSQLException{
+    public Optional<User> findUser(String login)  throws CustomSQLException, NonExistentUserException{
 //        return connection.flatMap(conn -> {
         Optional<User> userOpt = Optional.empty();
         String sql = "SELECT * FROM users WHERE username = ?";
@@ -83,8 +99,10 @@ public class UserDaoImpl implements UserDao<User, Integer> {
 
             if (resultSet.next()) {
                 userOpt = Optional.of(composeUser(resultSet));
-
                 LOGGER.log(Level.INFO, "Found {0} in database", userOpt.get());
+            }
+            else{
+                throw new NonExistentUserException();
             }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
@@ -197,7 +215,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
             statement.setString(3, nonNullUser.getEmail());
             statement.setString(4, nonNullUser.getFirstName());
             statement.setString(5, nonNullUser.getLastName());
-            statement.setString(6, nonNullUser.getRole());
+            statement.setString(6, nonNullUser.getRole().toString());
             statement.setString(7, nonNullUser.getCompany());
 
             int numberOfInsertedRows = statement.executeUpdate();
@@ -248,7 +266,7 @@ public class UserDaoImpl implements UserDao<User, Integer> {
             statement.setString(3, nonNullUser.getEmail());
             statement.setString(4, nonNullUser.getFirstName());
             statement.setString(5, nonNullUser.getLastName());
-            statement.setString(6, nonNullUser.getRole());
+            statement.setString(6, nonNullUser.getRole().toString());
             statement.setString(7, nonNullUser.getCompany());
             statement.setInt(8, nonNullUser.getId());
 

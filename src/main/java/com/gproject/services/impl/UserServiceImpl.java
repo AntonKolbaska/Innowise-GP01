@@ -1,9 +1,10 @@
 package com.gproject.services.impl;
 
-import com.gproject.controllers.dao.impl.UserDaoImpl;
+import com.gproject.dao.impl.UserDaoImpl;
 import com.gproject.dto.UserDto;
 import com.gproject.entity.User;
 import com.gproject.exception.CustomSQLException;
+import com.gproject.exception.NonExistentUserException;
 import com.gproject.mappers.UserMapper;
 import com.gproject.services.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -24,18 +25,32 @@ public class UserServiceImpl implements UserService {
         mapper = Mappers.getMapper(UserMapper.class);
     }
 
+
     public static UserServiceImpl getInstance() {
-        if (instance == null) {
-            instance = new UserServiceImpl();
+        UserServiceImpl localInstance = instance;
+        if (localInstance == null) {
+            synchronized (UserServiceImpl.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new UserServiceImpl();
+                }
+            }
         }
-        return instance;
+        return localInstance;
     }
 
+//    public static UserServiceImpl getInstance() {
+//        if (instance == null) {
+//            instance = new UserServiceImpl();
+//        }
+//        return instance;
+//    }
 
-    public UserDto findUserById(int id) throws CustomSQLException {
+
+    public UserDto findUserById(int id) throws RuntimeException{
         try {
             return mapper.userToDto(userDao.findUser(id).get());
-        } catch (CustomSQLException e) {
+        } catch (RuntimeException e) {
             throw e;
         }
     }

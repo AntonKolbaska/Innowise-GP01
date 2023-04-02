@@ -3,6 +3,7 @@ package com.gproject.entity;
 
 import lombok.*;
 
+
 @Getter
 @Setter
 @ToString
@@ -11,5 +12,5 @@ import lombok.*;
 public class Credentials {
     private String username;
     private String password;
-    private String role;
+    private Roles role;
 }

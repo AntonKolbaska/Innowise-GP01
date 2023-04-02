@@ -1,6 +1,6 @@
 package com.gproject.controllers;
 
-import com.gproject.controllers.dao.impl.JdbcConnection;
+import com.gproject.dao.impl.JdbcConnection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +19,8 @@ public class AuthControllerTest {
     private static Connection conn;
 
     //TOKENS HAVE TO BE UPDATED BEFORE TESTS LAUNCHING
-    private static final String ADMIN_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUDAxIiwidXNlciI6ImFibGUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE2ODAxMTc2OTYsImV4cCI6MTY4MDEyMTI5Nn0.3IFDEq8S1GeTqGQQKz_BbxP_cvCuWiyefUQe-rhP8sE";
-    private static final String CLIENT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUDAxIiwidXNlciI6ImRvZyIsInJvbGUiOiJFTVBMT1lFRSIsImlhdCI6MTY4MDExNzcyNSwiZXhwIjoxNjgwMTIxMzI1fQ.kjAhwmiabkHpCNb6qOzAk_ivuO5sMBwVs3PPo65SmBw";
+    private static final String ADMIN_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUDAxIiwidXNlciI6ImFibGUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE2ODA0NDE2NjIsImV4cCI6MTY4MDQ0NTI2Mn0.oXZ1Ihiuw1xtvxOoBYd0ljA5UYX5riqyWnQii25Mufg";
+    private static final String CLIENT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUDAxIiwidXNlciI6ImRvZyIsInJvbGUiOiJFTVBMT1lFRSIsImlhdCI6MTY4MDQ0MTYzOSwiZXhwIjoxNjgwNDQ1MjM5fQ.j2uh2M_2lKJf2-IwzljtcXGxkCNuoig7P3xPODuh6_E";
 
 
 

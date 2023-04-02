@@ -1,6 +1,8 @@
 package com.gproject.dto;
 
+import com.gproject.entity.Roles;
 import lombok.*;
+
 
 @Getter
 @Setter
@@ -16,6 +18,6 @@ public class UserDto {
     private String email;
     private String firstName;
     private String lastName;
-    private String role;
+    private Roles role;
     private String company;
 }

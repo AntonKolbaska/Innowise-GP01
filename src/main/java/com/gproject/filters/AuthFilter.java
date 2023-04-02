@@ -1,5 +1,6 @@
 package com.gproject.filters;
 
+import com.gproject.entity.Roles;
 import com.gproject.services.impl.JWTServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -65,11 +66,12 @@ public class AuthFilter extends HttpFilter {
                 return;
             }
 
-            String role = claims.getBody().get("role", String.class);
+            Roles role = Roles.valueOf(claims.getBody().get("role", String.class));
             System.out.println("ROLE==================="+role);
             System.out.println("method==================="+request.getMethod());
             //restrict actions for default user
-            if(role.equals("EMPLOYEE") & !request.getMethod().equals("GET")) {
+            System.out.println("comparing: " + (role == Roles.EMPLOYEE));
+            if(role.equals(Roles.EMPLOYEE) & !request.getMethod().equals("GET")) {
                 response.setContentType("application/json");
                 response.setStatus(403);
                 PrintWriter out = response.getWriter();

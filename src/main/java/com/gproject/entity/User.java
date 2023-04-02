@@ -2,6 +2,7 @@ package com.gproject.entity;
 
 import lombok.*;
 
+
 @Getter
 @Setter
 @ToString
@@ -15,6 +16,6 @@ public class User {
     private String email;
     private String firstName;
     private String lastName;
-    private String role;
+    private Roles role;
     private String company;
 }

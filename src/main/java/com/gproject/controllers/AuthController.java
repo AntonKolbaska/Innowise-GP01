@@ -5,6 +5,7 @@ import com.gproject.annotations.Controller;
 import com.gproject.annotations.HttpMethod;
 import com.gproject.annotations.RequestMapping;
 import com.gproject.entity.Credentials;
+import com.gproject.entity.Roles;
 import com.gproject.services.impl.JWTServiceImpl;
 import com.gproject.services.impl.UserServiceImpl;
 import javax.servlet.http.HttpServletRequest;
